@@ -1,0 +1,48 @@
+/*
+ * BLE Sensor overlay for XIAO nRF54LM20A.
+ *
+ * Enables nPM1300 PMIC LDO1 (imu_vdd) at 3.3V for IMU power,
+ * and marks IMU for deferred initialization so the application
+ * can enable power before the sensor driver probes.
+ *
+ * nRF54LM20A does not have rfsw_pwr / vbat_pwr regulators.
+ *
+ * BLE: The board DTS sets zephyr,bt-hci = &bt_hci_sdc (Nordic SDC),
+ * but SDC is not available in the PlatformIO SDK. We keep the node
+ * label (so the chosen reference stays valid) but change its
+ * compatible string to the Zephyr open-source split LL driver.
+ */
+
+&pmic_i2c {
+	sda-gpios = <&gpio1 18 GPIO_ACTIVE_HIGH>;
+	scl-gpios = <&gpio1 17 GPIO_ACTIVE_HIGH>;
+	status = "okay";
+};
+
+&pwm20 {
+	status = "disabled";
+};
+
+&green_led {
+	gpios = <&gpio1 24 GPIO_ACTIVE_LOW>;
+};
+
+&pmic {
+	regulators {
+		imu_vdd: LDO1 {
+			regulator-min-microvolt = <3300000>;
+			regulator-max-microvolt = <3300000>;
+			regulator-boot-on;
+		};
+	};
+};
+
+&lsm6ds3tr_c {
+	wakeup-source;
+	zephyr,deferred-init;
+};
+
+/* Replace SDC compatible with Zephyr open-source split LL */
+&bt_hci_sdc {
+	compatible = "zephyr,bt-hci-ll-sw-split";
+};
