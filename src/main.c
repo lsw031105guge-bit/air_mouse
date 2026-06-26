@@ -35,6 +35,8 @@ static const struct bt_data sd[] = {
 /*------------------------------------------------------------------*/
 static void connected(struct bt_conn *conn, uint8_t err)
 {
+    int sec_err;
+
     if (err) {
         printk("Connection failed (%u)\n", err);
         return;
@@ -42,9 +44,9 @@ static void connected(struct bt_conn *conn, uint8_t err)
 
     printk("Connected\n");
 
-    err = bt_conn_set_security(conn, BT_SECURITY_L2);
-    if (err) {
-        printk("Failed to request security (%u)\n", err);
+    sec_err = bt_conn_set_security(conn, BT_SECURITY_L2);
+    if (sec_err) {
+        printk("Failed to request security (%d)\n", sec_err);
     }
 }
 static void disconnected(struct bt_conn *conn, uint8_t reason)
